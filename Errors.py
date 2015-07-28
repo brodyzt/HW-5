@@ -1,0 +1,1 @@
+class NotInKey(Exception): pass

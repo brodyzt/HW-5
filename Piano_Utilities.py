@@ -1,3 +1,6 @@
+from Errors import *
+from copy import *
+
 # Variables for Key Pitches
 c1 = 36
 cs1 = 37
@@ -113,11 +116,31 @@ A_Minor = [a,b,c,d,e,f,g]
 B_Major = [b,c_sharp,d_sharp,e,f_sharp,g_sharp,a_sharp]
 B_Minor = [b,c_sharp,d,e,f_sharp,g,a]
 
-def notes_in_key(key, octave):
-    for x in range(len(key)):
-        if key[x] + 12 * (octave + 2) < key[0]:
-            key[x] += 12 * (octave + 3)
-        else:
-            key[x] += 12 * (octave + 2)
-    return key
+Major_Pentatonic = [g_flat,a_flat,b_flat,d_flat,e_flat]
 
+
+def notes_in_key(input_key):
+    notes = []
+    for x in range(10):
+        for key in input_key:
+            notes.append(key + 12*x)
+    return notes
+
+def n_notes_away(input_key, start_note, num_away):
+    key = notes_in_key(input_key)
+    index = key.index(start_note)
+    index += num_away
+    return key[index]
+
+
+def triad(input_key, start_note):
+    chord = []
+    key = notes_in_key(input_key)
+    if not start_note in key:
+        raise NotInKey('{} is not the key of {}'.format(start_note,input_key))
+    index = key.index(start_note)
+    for x in range(3):
+        chord.append(key[index])
+        index += 2
+
+    return chord
