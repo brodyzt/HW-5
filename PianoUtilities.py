@@ -1,6 +1,20 @@
 from Errors import *
 from copy import *
 
+instrument_list = [('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
+                            ('marimba',12), ('organ',19), ('guitar',24), ('bass',32),
+                            ('violin',40), ('cello',42), ('harp',46), ('timps',47),
+                            ('voice',54), ('trumpet',56), ('tuba',58), ('horn',60),
+                            ('alto sax', 65), ('oboe',68), ('bassoon',70), ('clarinet',71),
+                            ('flute',73), ('recorder',74), ('bottle',75), ('whistle',78),
+                            ('synth 1',81), ('synth 2',82), ('synth 3',83), ('synth 4',84),
+                            ('fifths',96), ('halo',94), ('goblins',101), ('koto',107),
+                            ('bagpipe',109), ('taiko',116), ('toms',117), ('breath',121),
+                            ('seashore',122), ('bird',123), ('phone',124), ('applause',126)]
+
+instrument_dic = dict(instrument_list)
+
+
 # Variables for Key Pitches
 c1 = 36
 cs1 = 37
@@ -134,6 +148,25 @@ B_Major = Key('B Major', [b,c_sharp,d_sharp,e,f_sharp,g_sharp,a_sharp])
 B_Minor = Key('B Minor', [b,c_sharp,d,e,f_sharp,g,a])
 
 Major_Pentatonic = Key('Major Pentatonic', [g_flat,a_flat,b_flat,d_flat,e_flat])
+
+key_list = [C_Major,
+            C_Minor,
+            D_Major,
+            D_Minor,
+            E_Major,
+            E_Minor,
+            F_Major,
+            F_Minor,
+            G_Major,
+            G_Minor,
+            A_Major,
+            A_Minor,
+            B_Major,
+            B_Minor,
+            Major_Pentatonic]
+
+key_dic = dict((key.name,key) for key in key_list)
+
 
 
 

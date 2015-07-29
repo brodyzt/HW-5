@@ -1,17 +1,6 @@
 from MidiFile3 import MIDIFile
-from Piano_Utilities import *
+from PianoUtilities import *
 from random import *
-
-instrument = dict([('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
-                            ('marimba',12), ('organ',19), ('guitar',24), ('bass',32),
-                            ('violin',40), ('cello',42), ('harp',46), ('timps',47),
-                            ('voice',54), ('trumpet',56), ('tuba',58), ('horn',60),
-                            ('alto sax', 65), ('oboe',68), ('bassoon',70), ('clarinet',71),
-                            ('flute',73), ('recorder',74), ('bottle',75), ('whistle',78),
-                            ('synth 1',81), ('synth 2',82), ('synth 3',83), ('synth 4',84),
-                            ('fifths',96), ('halo',94), ('goblins',101), ('koto',107),
-                            ('bagpipe',109), ('taiko',116), ('toms',117), ('breath',121),
-                            ('seashore',122), ('bird',123), ('phone',124), ('applause',126)])
 
 class Song:
 
@@ -32,7 +21,7 @@ class Song:
     def add_channel(self, track, input_instrument='piano'):
         channel = len(self.channel_locations[track])
         self.channel_locations[track].append(0)
-        self.MyMIDI.addProgramChange(track=track, channel=channel, time=0, program=instrument[input_instrument])
+        self.MyMIDI.addProgramChange(track=track, channel=channel, time=0, program=instrument_dic[input_instrument])
 
     def add_single_note(self, pitch, duration, track, channel, volume=100):
         if pitch >= 0:
@@ -54,7 +43,7 @@ class Song:
             self.add_single_chord(chord[0], chord[1], track, channel)
 
     def set_instrument(self, track, channel, instrument_text):
-        self.MyMIDI.addProgramChange(track, channel, 0, instrument[instrument_text])
+        self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
 
     def write_to_disk(self):
         binfile = open("output.mid", 'wb')
@@ -62,7 +51,8 @@ class Song:
         binfile.close()
         print("Written to file!")
 
-    def add_random_triads(self, track_and_channels, num_triads, key, start_note):
+    def add_random_triads(self, track_and_channels, num_triads, key):
+        start_note = key.notes_in_key[0]
         displacement = 0
         for x in range(num_triads):
             length = [half,quarter,eighth, sixteenth].pop(randint(0,2))
@@ -79,7 +69,7 @@ class Song:
                 self.add_single_note(pitch=note, duration=length, track=track_and_channels[x][0], channel=track_and_channels[x][1])
 
     def set_instrument(self, track, channel, instrument_text):
-        self.MyMIDI.addProgramChange(track, channel, 0, instrument[instrument_text])
+        self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
 
 class Singer:
 
@@ -140,7 +130,6 @@ my_song.add_notes([(rest, eighth),
                    (ef3, quarter),
                    (f3, quarter)], 0)
 my_song.write_to_disk()
-'''
 
 my_song = Song(2, tempo=240, input_instrument='piano')
 my_song.add_channel(track=0, input_instrument='piano')
@@ -153,4 +142,4 @@ my_song.write_to_disk()
 
 print(A_Minor.notes_in_key)
 
-print(triad(A_Minor, a3))
+print(triad(A_Minor, a3))'''
