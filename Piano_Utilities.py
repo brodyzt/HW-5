@@ -101,46 +101,62 @@ a_sharp = 10
 b_flat = 10
 b = 11
 
-C_Major = [c,d,e,f,g,a,b]
-C_Minor = [c,d,e_flat,f,g,a_flat,b_flat]
-D_Major = [d,e,f_sharp,g,a,c_sharp]
-D_Minor = [d,e,f,g,a,b_flat,c]
-E_Major = [e,f_sharp,g_sharp,a,b,c_sharp,d_sharp]
-E_Minor = [e,f_sharp,g,a,b,c,d]
-F_Major = [f,g,a,b_flat,c,d,e]
-F_Minor = [f,g,a_flat,b_flat,c,d_flat,e_flat]
-G_Major = [g,a,b,c,d,e,f_sharp]
-G_Minor = [g,a,b_flat,c,d,e_flat,f]
-A_Major = [a,b,c_sharp,d,e,f_sharp,g_sharp]
-A_Minor = [a,b,c,d,e,f,g]
-B_Major = [b,c_sharp,d_sharp,e,f_sharp,g_sharp,a_sharp]
-B_Minor = [b,c_sharp,d,e,f_sharp,g,a]
+class Key:
 
-Major_Pentatonic = [g_flat,a_flat,b_flat,d_flat,e_flat]
+    def __init__(self, name, input_key):
+        self.name = name
+        self.notes_in_key = self.notes_in_key(input_key)
+
+    @staticmethod
+    def notes_in_key(input_key):
+        notes = []
+        for x in range(10):
+            for key in input_key:
+                if key + 12*x < input_key[0]+ 12*x:
+                    notes.append(key + 12*(x+1))
+                else:
+                    notes.append(key + 12*x)
+        return notes
+
+C_Major = Key('C Major', [c,d,e,f,g,a,b])
+C_Minor = Key('C Minor', [c,d,e_flat,f,g,a_flat,b_flat])
+D_Major = Key('D Major', [d,e,f_sharp,g,a,c_sharp])
+D_Minor = Key('D Minor', [d,e,f,g,a,b_flat,c])
+E_Major = Key('E Major', [e,f_sharp,g_sharp,a,b,c_sharp,d_sharp])
+E_Minor = Key('E Minor', [e,f_sharp,g,a,b,c,d])
+F_Major = Key('F Major', [f,g,a,b_flat,c,d,e])
+F_Minor = Key('F Minor', [f,g,a_flat,b_flat,c,d_flat,e_flat])
+G_Major = Key('G Major', [g,a,b,c,d,e,f_sharp])
+G_Minor = Key('G Minor', [g,a,b_flat,c,d,e_flat,f])
+A_Major = Key('A Major', [a,b,c_sharp,d,e,f_sharp,g_sharp])
+A_Minor = Key('A Minor', [a,b,c,d,e,f,g])
+B_Major = Key('B Major', [b,c_sharp,d_sharp,e,f_sharp,g_sharp,a_sharp])
+B_Minor = Key('B Minor', [b,c_sharp,d,e,f_sharp,g,a])
+
+Major_Pentatonic = Key('Major Pentatonic', [g_flat,a_flat,b_flat,d_flat,e_flat])
 
 
-def notes_in_key(input_key):
-    notes = []
-    for x in range(10):
-        for key in input_key:
-            notes.append(key + 12*x)
-    return notes
+
 
 def n_notes_away(input_key, start_note, num_away):
-    key = notes_in_key(input_key)
-    index = key.index(start_note)
+    index = input_key.notes_in_key.index(start_note)
     index += num_away
-    return key[index]
+    return input_key.notes_in_key[index]
 
 
 def triad(input_key, start_note):
     chord = []
-    key = notes_in_key(input_key)
-    if not start_note in key:
-        raise NotInKey('{} is not the key of {}'.format(start_note,input_key))
-    index = key.index(start_note)
+    if not start_note in input_key.notes_in_key:
+        raise NotInKey('{} is not the key of {}'.format(start_note,input_key.name))
+    index = input_key.notes_in_key.index(start_note)
     for x in range(3):
-        chord.append(key[index])
+        chord.append(input_key.notes_in_key[index] % 12)
         index += 2
 
-    return chord
+    result_triad = []
+
+    for note in input_key.notes_in_key:
+        if note % 12 in chord:
+            result_triad.append(note)
+
+    return result_triad

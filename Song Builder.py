@@ -8,36 +8,40 @@ instrument = dict([('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
                             ('voice',54), ('trumpet',56), ('tuba',58), ('horn',60),
                             ('alto sax', 65), ('oboe',68), ('bassoon',70), ('clarinet',71),
                             ('flute',73), ('recorder',74), ('bottle',75), ('whistle',78),
+                            ('synth 1',81), ('synth 2',82), ('synth 3',83), ('synth 4',84),
                             ('fifths',96), ('halo',94), ('goblins',101), ('koto',107),
                             ('bagpipe',109), ('taiko',116), ('toms',117), ('breath',121),
                             ('seashore',122), ('bird',123), ('phone',124), ('applause',126)])
 
 class Song:
 
-    def __init__(self, num_tracks,  num_channels=2, tempo=120):
+    def __init__(self, num_tracks,  num_channels=2, tempo=120, input_instrument='piano'):
         self.MyMIDI = MIDIFile(num_tracks)
         self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
 
         self.channel_locations = []
 
         for x in range(num_tracks):
-            self.add_track(x)
+            self.add_track(x, input_instrument)
 
-    def add_track(self, track):
+    def add_track(self, track, input_instrument='piano'):
         self.MyMIDI.addTrackName(track, 0, str(track))
         self.channel_locations.append([])
-        self.add_channel(track)
+        self.add_channel(track, input_instrument)
 
-    def add_channel(self, track):
+    def add_channel(self, track, input_instrument='piano'):
         channel = len(self.channel_locations[track])
         self.channel_locations[track].append(0)
-        self.MyMIDI.addProgramChange(track=track, channel=channel, time=0, program=instrument['piano'])
+        self.MyMIDI.addProgramChange(track=track, channel=channel, time=0, program=instrument[input_instrument])
+
+    def add_single_note(self, pitch, duration, track, channel, volume=100):
+        if pitch >= 0:
+            self.MyMIDI.addNote(track=track, channel=channel, pitch=pitch, time=self.channel_locations[track][channel], duration=duration, volume=volume)
+        self.channel_locations[track][channel] += duration
 
     def add_notes(self, notes, track, channel, volume=100):
         for note in notes:
-            if note[0] >= 0:
-                self.MyMIDI.addNote(track, channel, pitch=note[0], time=self.channel_locations[track][channel], duration=note[1], volume=volume)
-            self.channel_locations[track][channel] += note[1]
+            self.add_single_note(note)
 
     def add_single_chord(self, chord, length, track, channel, volume=100):
         for note in chord:
@@ -58,19 +62,55 @@ class Song:
         binfile.close()
         print("Written to file!")
 
-    def add_random_triads(self, track, channel, num_triads, key, start_note):
+    def add_random_triads(self, track_and_channels, num_triads, key, start_note):
         displacement = 0
         for x in range(num_triads):
-            displacement += randint(-2,2)
-            if displacement < -10:
-                displacement = -10
-            elif displacement > 10:
-                displacement = 10
-            length = [full,half,quarter,eighth].pop(randint(0,3))
-            self.add_single_chord(chord=triad(key, n_notes_away(key, start_note, displacement)), length=length, track=track, channel=channel)
+            length = [half,quarter,eighth, sixteenth].pop(randint(0,2))
+            temp_triad = triad(key, start_note)
+            start_index = temp_triad.index(start_note)
+            displacements = [0 for item in track_and_channels]
+            for x in range(len(track_and_channels)):
+                displacements[x] += randint(-2,2)
+                if displacements[x] > 6:
+                    displacements[x] = 6
+                elif displacements[x] < -6:
+                    displacements[x] = -6
+                note = temp_triad[start_index + displacements[x]]
+                self.add_single_note(pitch=note, duration=length, track=track_and_channels[x][0], channel=track_and_channels[x][1])
 
     def set_instrument(self, track, channel, instrument_text):
         self.MyMIDI.addProgramChange(track, channel, 0, instrument[instrument_text])
+
+class Singer:
+
+    def __init__(self, low_note, high_note, track, channel):
+        self.low_note = low_note
+        self.high_note = high_note
+        self.vocal_range = high_note - low_note
+        self.track = track
+        self.channel = channel
+
+    def octave_notes_in_range(self, input_pitch):
+        possible_notes = []
+        for x in range(self.vocal_range+1):
+            pitch = x + self.low_note
+            difference = pitch - input_pitch
+            if difference % 12 == 0:
+                possible_notes.append(pitch)
+        return possible_notes
+
+class Soprano(Singer):
+    def __init__(self, low_note=60, high_note=81, track=0, channel=0):
+        super(Soprano, self).__init__(low_note,high_note,track,channel)
+class Alto(Singer):
+    def __init__(self, low_note=55, high_note=77, track=0, channel=1):
+        super(Soprano, self).__init__(low_note,high_note,track,channel)
+class Tenor(Singer):
+    def __init__(self, low_note=48, high_note=69, track=1, channel=0):
+        super(Soprano, self).__init__(low_note,high_note,track,channel)
+class Bass(Singer):
+    def __init__(self, low_note=40, high_note=64, track=1, channel=1):
+        super(Soprano, self).__init__(low_note,high_note,track,channel)
 
 '''
 my_song = Song(tempo=128)
@@ -102,8 +142,15 @@ my_song.add_notes([(rest, eighth),
 my_song.write_to_disk()
 '''
 
-my_song = Song(2, tempo=120)
-my_song.add_random_triads(0, 0, 100, Major_Pentatonic, cs3)
-my_song.add_random_triads(1, 0, 100, Major_Pentatonic, cs1)
-my_song.set_instrument(0,0,'trumpet')
+my_song = Song(2, tempo=240, input_instrument='piano')
+my_song.add_channel(track=0, input_instrument='piano')
+my_song.add_random_triads(track_and_channels=[(0,0), (0,1), (1,0)],
+                          num_triads=100,
+                          key=G_Major,
+                          start_note=g3)
+#my_song.add_random_triads(1, 0, 100, Major_Pentatonic, cs1)
 my_song.write_to_disk()
+
+print(A_Minor.notes_in_key)
+
+print(triad(A_Minor, a3))
