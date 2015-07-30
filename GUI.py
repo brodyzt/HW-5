@@ -6,7 +6,7 @@ from PianoUtilities import *
 class custom_list():
 
     def __init__(self):
-        self.list = [[]]
+        self.list = [[None]]
 
     def __str__(self):
         return str(self.list)
@@ -24,7 +24,7 @@ class custom_list():
                 self.list[row].insert(column, object)
         else:
             while len(self.list) - 1 < row:
-                self.list.append([])
+                self.list.append([None])
             if column <= len(self.list[row]):
                 self.list[row].insert(column, object)
             else:
@@ -43,7 +43,7 @@ class custom_list():
                 self.list[row].insert(column, object)
         else:
             while len(self.list) - 1 < row:
-                self.list.append([])
+                self.list.append([None])
             self.list.insert(row, [])
             if column <= len(self.list[row]):
                 self.list[row].insert(column, object)
@@ -88,7 +88,7 @@ class MusicChooser:
         self.frame.pack()
         self.grid = custom_list()
 
-        self.track_and_channel_widgets = []
+        self.track_and_settings = []
 
         self.add_initial_elements()
 
@@ -96,15 +96,21 @@ class MusicChooser:
         self.master.mainloop()
 
     def add_initial_elements(self):
-        self.tempo_text = Label(self.frame, text='Tempo:')
-        self.tempo_input = Entry(self.frame)
-        self.grid.add_pair_of_widgets(self.tempo_text, self.tempo_input)
+        self.tempo_title = Label(self.frame, text='Tempo:')
+        self.tempo_input = Scale(self.frame, from_=0, to=300, orient=HORIZONTAL)
+        self.tempo_input.set(120)
+        self.grid.add_pair_of_widgets(self.tempo_title, self.tempo_input)
 
         self.key_text = Label(self.frame, text='Key:')
         self.key_var = StringVar(self.master)
         self.key_var.set(key_list[0].name)
         self.key_input = OptionMenu(self.frame, self.key_var, *[key.name for key in key_list])
         self.grid.add_pair_of_widgets(self.key_text,self.key_input)
+
+        self.measures_text = Label(self.frame, text='# of Measures:')
+        self.measures_input = Scale(self.frame, from_=1, to=100, orient=HORIZONTAL)
+        self.measures_input.set(50)
+        self.grid.add_pair_of_widgets(self.measures_text, self.measures_input)
 
         self.tracks_var = StringVar(self.master)
         self.tracks_var.set('1')
@@ -131,44 +137,47 @@ class MusicChooser:
         self.complete_button.grid(row=len(self.grid),columnspan=2)
 
     def add_track_settings(self, *args):
-        for widget in self.track_and_channel_widgets:
-            widget.destroy()
-            self.grid.remove_item(widget)
-        for i in range(int(self.tracks_var.get())):
-            track_name = Label(self.frame, text = 'Track {}:'.format(str(i+1)))
-            self.grid.add_with_column(0, track_name)
-            channels_text = Label(self.frame, text='# of Channels:')
-            channels_var = StringVar(self.master)
-            channels_var.set('1')
-            channels_var.row=len(self.grid)
-            channels_var.trace_variable('w', self.add_channel_settings)
-            channels_input = OptionMenu(self.frame, channels_var, *[str(num+1) for num in range(2)])
-            self.grid.add_pair_of_widgets(channels_text, channels_input, 1, 2)
-            self.track_and_channel_widgets.append([track_name, channels_text, channels_input,channels_var])
-
-        self.rebuild_grid()
-        self.add_channel_settings()
-
-    def add_channel_settings(self, *args):
-        for track in self.track_and_channel_widgets:
-            if len(track) != 5:
-                track.append([])
-            else:
-                for widget in track[4]:
+        for track in self.track_and_settings:
+            for widget in track[1:len(track)]:
+                self.grid.remove_item(widget)
+                if type(widget) != StringVar:
                     widget.destroy()
-                    self.grid.remove_item(widget)
-                track[4] = []
-            for channel in range(int(track[3].get())):
-                channel_text = Label(self.frame, text='Channel {} Settings:'.format(channel+1))
-                track[4].append(channel_text)
-                self.grid.insert_own_row(self.grid.widget_row(track[1])+1+channel,2, channel_text)
+            for widget in track[0]:
+                self.grid.remove_item(widget)
+                widget.destroy()
+
         self.rebuild_grid()
+
+        self.track_and_settings = []
+
+        for i in range(int(self.tracks_var.get())):
+            track_name_label = Label(self.frame, text = 'Track {}:'.format(str(i+1)))
+            self.grid.add_with_column(0, track_name_label)
+
+            instrument_text = Label(self.frame, text='Instrument:')
+            instrument_var = StringVar()
+            instrument_var.set('piano')
+            instrument_picker = OptionMenu(self.frame, instrument_var, *[instrument[0] for instrument in instrument_list[0:10]])
+
+            vocal_text = Label(self.frame, text='Vocal Range:')
+            vocal_var = StringVar()
+            vocal_var.set('Soprano')
+            vocal_picker = OptionMenu(self.frame, vocal_var, *[vocal[0] for vocal in singer_list])
+
+            self.grid.add_pair_of_widgets(instrument_text, instrument_picker, 1, 2)
+            self.grid.add_pair_of_widgets(vocal_text, vocal_picker, 1, 2)
+            self.track_and_settings.append([[], track_name_label, instrument_text, instrument_var, instrument_picker, vocal_text, vocal_var, vocal_picker])
+
+        self.rebuild_grid()
+
 
 
     def close(self):
-        print('Number of tracks: ' + str(self.tracks_input.get()))
         self.tempo = int(self.tempo_input.get())
-        self.num_tracks = self.tracks_input.get()
-        self.channels_per_track = [int(track[2].get()) for track in self.track_settings]
         self.key = key_dic[self.key_var.get()]
+        self.num_measures = self.measures_input.get()
+        self.num_tracks = self.tracks_var.get()
+        self.instruments = [instrument_dic[track[3].get()] for track in self.track_and_settings]
+        self.singers = [singer_dic[track[6].get()] for track in self.track_and_settings]
         self.master.destroy()
+

@@ -1,6 +1,37 @@
 from Errors import *
 from copy import *
 
+class Singer:
+    def __init__(self, low_note, high_note, track, channel):
+        self.low_note = low_note
+        self.high_note = high_note
+        self.vocal_range = high_note - low_note
+        self.track = track
+        self.channel = channel
+
+    def octave_notes_in_range(self, input_pitch):
+        possible_notes = []
+        for x in range(self.vocal_range+1):
+            pitch = x + self.low_note
+            difference = pitch - input_pitch
+            if difference % 12 == 0:
+                possible_notes.append(pitch)
+        return possible_notes
+
+
+class Soprano(Singer):
+    def __init__(self, low_note=60, high_note=81, track=0, channel=0):
+        super(Soprano, self).__init__(low_note,high_note,track,channel)
+class Alto(Singer):
+    def __init__(self, low_note=55, high_note=77, track=0, channel=1):
+        super(Alto, self).__init__(low_note,high_note,track,channel)
+class Tenor(Singer):
+    def __init__(self, low_note=48, high_note=69, track=1, channel=0):
+        super(Tenor, self).__init__(low_note,high_note,track,channel)
+class Bass(Singer):
+    def __init__(self, low_note=40, high_note=64, track=1, channel=1):
+        super(Bass, self).__init__(low_note,high_note,track,channel)
+
 instrument_list = [('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
                             ('marimba',12), ('organ',19), ('guitar',24), ('bass',32),
                             ('violin',40), ('cello',42), ('harp',46), ('timps',47),
@@ -13,6 +44,10 @@ instrument_list = [('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
                             ('seashore',122), ('bird',123), ('phone',124), ('applause',126)]
 
 instrument_dic = dict(instrument_list)
+
+singer_list = [('Soprano',Soprano()),('Alto',Alto()),('Tenor',Tenor()),('Bass',Bass())]
+
+singer_dic = dict(singer_list)
 
 
 # Variables for Key Pitches
@@ -168,9 +203,6 @@ key_list = [C_Major,
 key_dic = dict((key.name,key) for key in key_list)
 
 
-
-
-
 def n_notes_away(input_key, start_note, num_away):
     index = input_key.notes_in_key.index(start_note)
     index += num_away
@@ -179,17 +211,9 @@ def n_notes_away(input_key, start_note, num_away):
 
 def triad(input_key, start_note):
     chord = []
-    if not start_note in input_key.notes_in_key:
-        raise NotInKey('{} is not the key of {}'.format(start_note,input_key.name))
     index = input_key.notes_in_key.index(start_note)
     for x in range(3):
         chord.append(input_key.notes_in_key[index] % 12)
         index += 2
 
-    result_triad = []
-
-    for note in input_key.notes_in_key:
-        if note % 12 in chord:
-            result_triad.append(note)
-
-    return result_triad
+    return chord
