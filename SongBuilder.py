@@ -46,7 +46,7 @@ class Song:
 
     def build_measure(self, singer, input_triad, time):
             if singer.name in ['Soprano','Alto']:
-                style = randint(1,4)
+                style = randint(1,2)
             else:
                 style = randint(1,2)
 
@@ -54,12 +54,21 @@ class Song:
                 for x in range(4):
                     self.build_beat(input_triad, time, singer)
                     time += 1
+            if style == 2:
+                self.build_x_sixteenths(16,input_triad,time,singer)
+
 
     def build_beat(self, input_triad, time, singer):
         pitch = singer.octave_notes_in_range(input_triad[randint(0,2)])
         pitch = pitch[randint(0,len(pitch)-1)]
         self.MyMIDI.addNote(singer.track, singer.track, pitch, time, 1, 100)
 
+    def build_x_sixteenths(self, num_sixteenths, input_triad, time, singer):
+        for x in range(num_sixteenths):
+            pitch = singer.octave_notes_in_range(input_triad[randint(0,2)])
+            pitch = pitch[randint(0,len(pitch)-1)]
+            self.MyMIDI.addNote(singer.track, singer.track, pitch, time, .25, 100)
+            time += .25
 
     def set_instrument(self, track, channel, instrument_text):
         self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
