@@ -13,7 +13,7 @@ instruments = new_chooser.instruments
 singers = new_chooser.singers
 
 my_song = Song(tempo, key, num_measures, instruments, singers)
-my_song.write_to_disk()
+my_song.write_to_disk(new_chooser.file_name)
 print(my_song.triads)
 
 #my_song.add_random_triads(1, 0, 100, Major_Pentatonic, cs1)

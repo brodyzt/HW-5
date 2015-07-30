@@ -96,6 +96,11 @@ class MusicChooser:
         self.master.mainloop()
 
     def add_initial_elements(self):
+        self.file_name_label = Label(self.frame, text='File Name:')
+        self.file_name_input = Entry(self.frame)
+        self.file_name_input.insert(0, 'output')
+        self.grid.add_pair_of_widgets(self.file_name_label, self.file_name_input)
+
         self.tempo_title = Label(self.frame, text='Tempo:')
         self.tempo_input = Scale(self.frame, from_=0, to=300, orient=HORIZONTAL)
         self.tempo_input.set(120)
@@ -173,6 +178,7 @@ class MusicChooser:
 
 
     def close(self):
+        self.file_name = self.file_name_input.get()
         self.tempo = int(self.tempo_input.get())
         self.key = key_dic[self.key_var.get()]
         self.num_measures = self.measures_input.get()

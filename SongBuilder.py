@@ -51,8 +51,8 @@ class Song:
     def set_instrument(self, track, channel, instrument_text):
         self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
 
-    def write_to_disk(self):
-        binfile = open("output.mid", 'wb')
+    def write_to_disk(self, output_name):
+        binfile = open(output_name + '.mid', 'wb')
         self.MyMIDI.writeFile(binfile)
         binfile.close()
         print("Written to file!")
