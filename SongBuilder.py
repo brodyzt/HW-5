@@ -7,6 +7,7 @@ class Song:
     def __init__(self, num_tracks,  num_channels=2, tempo=120, input_instrument='piano'):
         self.MyMIDI = MIDIFile(num_tracks)
         self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
+        self.triads = []
 
         self.channel_locations = []
 
@@ -67,6 +68,7 @@ class Song:
                     displacements[x] = -6
                 note = temp_triad[start_index + displacements[x]]
                 self.add_single_note(pitch=note, duration=length, track=track_and_channels[x][0], channel=track_and_channels[x][1])
+
 
     def set_instrument(self, track, channel, instrument_text):
         self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])

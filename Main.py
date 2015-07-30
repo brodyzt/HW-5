@@ -13,3 +13,5 @@ my_song.add_random_triads(track_and_channels=[(0,0), (0,1), (1,0)],
                           key=new_chooser.key)
 #my_song.add_random_triads(1, 0, 100, Major_Pentatonic, cs1)
 my_song.write_to_disk()
+
+print(new_chooser.channels_per_track)
