@@ -1,5 +1,5 @@
 from tkinter import *
-
+from random import *
 from PianoUtilities import *
 
 class Preset:
@@ -9,7 +9,7 @@ class Preset:
         file = open('Presets', 'r')
         contents = file.readlines()
         contents.pop(0)
-        contents = [line.split(',') for line in contents]
+        contents = [line.replace('\n','').split(',') for line in contents]
         file.close()
         return dict([(preset[0],preset) for preset in contents])
 
@@ -29,6 +29,22 @@ class Preset:
         file.write(temp_str[0:len(temp_str)-1] + '\n')
 
         file.close()
+
+    @staticmethod
+    def remove_preset(preset_name):
+        new_file_contents = []
+        file = open('Presets', 'r')
+        contents = file.readlines()
+        file.close()
+
+        new_file_contents.append(contents[0])
+
+        for line in contents:
+            if preset_name != line.split(',')[0]:
+                new_file_contents.append(line)
+
+        file = open('Presets', 'w')
+        file.writelines(new_file_contents)
 
 
 class custom_list():
@@ -140,12 +156,13 @@ class MusicChooser:
             self.preset_keys = ['']
         self.presets_picker = OptionMenu(self.frame, self.presets_var, *self.preset_keys)
         self.add_preset_button = Button(self.frame, text='Add Preset', command=self.ask_preset_name)
+        self.delete_preset_button = Button(self.frame, text='Delete Preset', command=self.delete_preset)
         self.load_preset_button = Button(self.frame, text='Load Preset', command=self.load_preset)
-        self.grid.add_list_of_widgets([self.presets_label, self.presets_picker, self.load_preset_button, self.add_preset_button])
+        self.grid.add_list_of_widgets([self.presets_label, self.presets_picker, self.load_preset_button, self.delete_preset_button, self.add_preset_button])
 
         self.file_name_label = Label(self.frame, text='File Name:')
         self.file_name_input = Entry(self.frame)
-        self.file_name_input.insert(0, 'output')
+        self.file_name_input.insert(0, 'output {}'.format(randint(0,1000)))
         self.grid.add_pair_of_widgets(self.file_name_label, self.file_name_input)
 
         self.tempo_title = Label(self.frame, text='Tempo:')
@@ -171,7 +188,7 @@ class MusicChooser:
         self.tracks_input = OptionMenu(self.frame, self.tracks_var, *[str(num+1) for num in range(7)])
         self.grid.add_pair_of_widgets(self.tracks_text,self.tracks_input)
 
-        self.complete_button = Button(self.frame, text='Done', command=self.close)
+        self.complete_button = Button(self.frame, text='Build Song', command=self.close)
 
         self.rebuild_grid()
         self.add_track_settings()
@@ -186,6 +203,15 @@ class MusicChooser:
         for x in range(len(self.track_and_settings)):
             self.track_and_settings[x][3].set(preset[5+2*x])
             self.track_and_settings[x][6].set(preset[6+2*x])
+
+    def delete_preset(self):
+        Preset.remove_preset(self.presets_var.get())
+        self.preset_keys = Preset.load().keys()
+        self.presets_var.set(list(self.preset_keys)[0])
+        self.presets_picker.__init__(self.frame, self.presets_var, *self.preset_keys)
+        self.grid.insert_at_row_column(0,2,self.presets_picker)
+
+        self.rebuild_grid()
 
     def ask_preset_name(self):
         self.preset_name_window = Toplevel()

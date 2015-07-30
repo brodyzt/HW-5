@@ -9,24 +9,24 @@ class Song:
         self.MyMIDI = MIDIFile(self.num_tracks)
         self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
         self.triads = self.create_triad_sequence(num_measures, key)
-
         self.instruments = instruments
         self.singers = singers
 
         for x in range(self.num_tracks):
             self.add_track(x, self.instruments[x])
+            self.singers[x].track = x
 
         self.time = 0
 
         self.build_song()
 
     def add_track(self, track, input_instrument):
-        self.MyMIDI.addTrackName(track, 0, str(track))
-        self.MyMIDI.addProgramChange(track=track, channel=0, time=0, program=input_instrument)
+        self.MyMIDI.addTrackName(track, 0, str(self.singers[track]))
+        self.MyMIDI.addProgramChange(track=track, channel=track, time=0, program=input_instrument)
 
     def add_single_note(self, pitch, duration, track, volume=100):
         if pitch >= 0:
-            self.MyMIDI.addNote(track=track, channel=0, pitch=pitch, time=self.time, duration=duration, volume=volume)
+            self.MyMIDI.addNote(track=track, channel=track, pitch=pitch, time=self.time, duration=duration, volume=volume)
 
     def set_instrument(self, track, channel, instrument_text):
         self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
@@ -40,13 +40,26 @@ class Song:
 
     def build_song(self):
         for triad in self.triads:
-            for x in range(len(self.singers)):
-                note = randint(0,len(triad)-1)
-                pitch = self.singers[x].octave_notes_in_range(triad[note])[0]
-                if len(triad) > 1:
-                    triad.pop(note)
-                self.add_single_note(pitch,1,x)
-            self.time += 1
+            for singer in self.singers:
+                self.build_measure(singer, triad, self.time)
+            self.time += 4
+
+    def build_measure(self, singer, input_triad, time):
+            if singer.name in ['Soprano','Alto']:
+                style = randint(1,4)
+            else:
+                style = randint(1,2)
+
+            if style == 1:
+                for x in range(4):
+                    self.build_beat(input_triad, time, singer)
+                    time += 1
+
+    def build_beat(self, input_triad, time, singer):
+        pitch = singer.octave_notes_in_range(input_triad[randint(0,2)])
+        pitch = pitch[randint(0,len(pitch)-1)]
+        self.MyMIDI.addNote(singer.track, singer.track, pitch, time, 1, 100)
+
 
     def set_instrument(self, track, channel, instrument_text):
         self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
@@ -55,4 +68,4 @@ class Song:
         binfile = open(output_name + '.mid', 'wb')
         self.MyMIDI.writeFile(binfile)
         binfile.close()
-        print("Written to file!")
+        print("Written to file with name: '{}'!".format(output_name + '.mid'))

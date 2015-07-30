@@ -2,12 +2,16 @@ from Errors import *
 from copy import *
 
 class Singer:
-    def __init__(self, low_note, high_note, track, channel):
+    def __init__(self, low_note, high_note, track, channel, name):
         self.low_note = low_note
         self.high_note = high_note
         self.vocal_range = high_note - low_note
         self.track = track
         self.channel = channel
+        self.name = name
+
+    def __str__(self):
+        return self.name
 
     def octave_notes_in_range(self, input_pitch):
         possible_notes = []
@@ -20,17 +24,17 @@ class Singer:
 
 
 class Soprano(Singer):
-    def __init__(self, low_note=60, high_note=81, track=0, channel=0):
-        super(Soprano, self).__init__(low_note,high_note,track,channel)
+    def __init__(self, low_note=60, high_note=81, track=0, channel=0, name='Soprano'):
+        super(Soprano, self).__init__(low_note,high_note,track,channel,name)
 class Alto(Singer):
-    def __init__(self, low_note=55, high_note=77, track=0, channel=1):
-        super(Alto, self).__init__(low_note,high_note,track,channel)
+    def __init__(self, low_note=55, high_note=77, track=0, channel=1, name='Alto'):
+        super(Alto, self).__init__(low_note,high_note,track,channel,name)
 class Tenor(Singer):
-    def __init__(self, low_note=48, high_note=69, track=1, channel=0):
-        super(Tenor, self).__init__(low_note,high_note,track,channel)
+    def __init__(self, low_note=48, high_note=69, track=1, channel=0, name='Tenor'):
+        super(Tenor, self).__init__(low_note,high_note,track,channel,name)
 class Bass(Singer):
-    def __init__(self, low_note=40, high_note=64, track=1, channel=1):
-        super(Bass, self).__init__(low_note,high_note,track,channel)
+    def __init__(self, low_note=40, high_note=64, track=1, channel=1, name='Bass'):
+        super(Bass, self).__init__(low_note,high_note,track,channel,name)
 
 instrument_list = [('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
                             ('marimba',12), ('organ',19), ('guitar',24), ('bass',32),
@@ -211,8 +215,8 @@ def n_notes_away(input_key, start_note, num_away):
 
 def triad(input_key, start_note):
     chord = []
-    index = input_key.notes_in_key.index(start_note)
     for x in range(3):
+        index = input_key.notes_in_key.index(start_note)
         chord.append(input_key.notes_in_key[index] % 12)
         index += 2
 
