@@ -2,13 +2,15 @@ from math import *
 from random import *
 
 class Singer:
-    def __init__(self, low_note, high_note, track, channel, name):
+    def __init__(self, low_note, high_note, track, channel, name, volume=100):
         self.low_note = low_note
         self.high_note = high_note
         self.vocal_range = high_note - low_note
         self.track = track
         self.channel = channel
         self.name = name
+        self.volume = volume
+        self.instrument = None
 
     def __str__(self):
         return self.name

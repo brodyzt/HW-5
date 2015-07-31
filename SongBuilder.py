@@ -5,36 +5,42 @@ from copy import *
 
 class Song:
 
-    def __init__(self, tempo, key, num_measures, instruments, singers, volumes):
-        self.num_tracks = len(instruments)
+    def __init__(self, tempo, key, num_measures, instruments, singers, num_tracks):
+        self.num_tracks = num_tracks
         self.MyMIDI = MIDIFile(self.num_tracks)
         self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
         self.triads = self.create_triad_sequence(num_measures, key)
         self.instruments = instruments
         self.singers = singers
-        self.volumes = volumes
+
+        self.key = key
+
         self.notes_for_track = []
 
-        for x in range(self.num_tracks):
-            self.add_track(x, self.instruments[x])
-            self.singers[x].track = x
-            self.singers[x].channel = x
-            self.notes_for_track.append([])
+        for x in range(self.num_tracks//3):
+            for singer_index in range(len(self.singers[x])):
+                self.singers[x][singer_index].track = 3*x + singer_index
+                self.singers[x][singer_index].channel = 3*x + singer_index
+
+        for singer in [row[0] for row in self.singers]:
+            self.add_track(singer)
+        for singer in [row[1] for row in self.singers]:
+            self.add_track(singer)
+        for singer in [row[2] for row in self.singers]:
+            self.add_track(singer)
 
         self.time = 0
 
         self.build_song()
 
-    def add_track(self, track, input_instrument):
-        self.MyMIDI.addTrackName(track, 0, str(self.singers[track]) + ', Volume: ' + str(self.volumes[track]))
-        self.MyMIDI.addProgramChange(track=track, channel=track, time=0, program=input_instrument)
+    def add_track(self, singer):
+        self.MyMIDI.addTrackName(singer.track, 0, singer.name + ', Volume:' + str(singer.volume))
+        self.MyMIDI.addProgramChange(track=singer.track, channel=singer.track, time=0, program=singer.instrument)
+        self.notes_for_track.append([])
 
-    def add_single_note(self, pitch, duration, track):
+    def add_single_note(self, singer, pitch, duration):
         if pitch >= 0:
-            self.MyMIDI.addNote(track=track, channel=track, pitch=pitch, time=self.time, duration=duration, volume=self.volumes[track])
-
-    def set_instrument(self, track, instrument_text):
-        self.MyMIDI.addProgramChange(track, track, 0, instrument_dic[instrument_text])
+            self.MyMIDI.addNote(track=singer.track, channel=singer.track, pitch=pitch, time=self.time, duration=duration, volume=singer.volume)
 
     def create_triad_sequence(self, num_triads, key):
         triads = []
@@ -58,93 +64,63 @@ class Song:
             return possible_notes[pick_any]
 
     def build_song(self):
-        for triad in self.triads[0:len(self.triads)//2]:
-            for singer in self.singers:
-                self.build_measure_chorus(singer, triad, self.time)
+        self.build_chorus(5)
+        self.build_verse(5)
+        self.build_bridge(5)
+
+    def build_chorus(self, length):
+        for x in range(len([row[0] for row in self.singers])):
+            self.set_instrument([row[0] for row in self.singers][x].track,[row[0] for row in self.singers][x].track, [row[0] for row in self.instruments][x])
+        for x in range(length-1):
+            for singer in [row[0] for row in self.singers]:
+                self.build_measure(singer, self.triads[0], self.time, [[1],[1],[1],[1]])
+            self.triads.pop(0)
             self.time += 4
-        for triad in self.triads[len(self.triads)//2:len(self.triads)]:
-            for singer in self.singers:
-                self.build_measure_bridge(singer, triad, self.time)
+        for singer in [row[0] for row in self.singers]:
+            self.build_measure(singer, triad(self.key, self.key.notes_in_key[0]), self.time, [[1],[1],[1],[1]])
+        self.triads.pop()
+        self.time+=4
+
+    def build_verse(self, length):
+        for x in range(len([row[1] for row in self.singers])):
+            self.set_instrument([row[1] for row in self.singers][x].track,[row[1] for row in self.singers][x].track, [row[1] for row in self.instruments][x])
+        for x in range(length-1):
+            for singer in [row[1] for row in self.singers]:
+                self.build_measure(singer, self.triads[0], self.time, [[1],[.5,1],[.5,1],[.5,1]])
+            self.triads.pop(0)
             self.time += 4
+        for singer in [row[1] for row in self.singers]:
+            self.build_measure(singer, triad(self.key, self.key.notes_in_key[0]), self.time, [[1],[.5,1],[.5,1],[.5,1]])
+        self.triads.pop()
+        self.time+=4
 
-    def build_measure_verse(self, singer, input_triad, time):
-            orig_time = deepcopy(time)
+    def build_bridge(self, length):
+        for x in range(len([row[2] for row in self.singers])):
+            self.set_instrument([row[1] for row in self.singers][x].track,[row[2] for row in self.singers][x].track, [row[2] for row in self.instruments][x])
+        for x in range(length-1):
+            for singer in [row[2] for row in self.singers]:
+                self.build_measure(singer, self.triads[0], self.time, [[1],[.5,1],[.5,1],[.5,1]])
+            self.triads.pop(0)
+            self.time += 4
+        for singer in [row[2] for row in self.singers]:
+            self.build_measure(singer, triad(self.key, self.key.notes_in_key[0]), self.time, [[2],[1],[2],[.25,.5,1]])
+        self.triads.pop()
+        self.time+=4
 
-            if singer.name == 'Bass':
-                duration_options = [1]
-
-            elif singer.name == 'Tenor':
-                duration_options = [.5,1]
-
-            elif singer.name == 'Alto':
-                duration_options = [.5,1]
-
-            elif singer.name == 'Soprano':
-                random = randint(0,100)
-                if 0 <= random <= 25:
-                    duration_options = [.25,.5,1]
-                elif 25 < random <= 75:
-                    duration_options = [.5,1]
-                elif 75 < random:
-                    duration_options = [.25,1]
-
-
-            while time < orig_time + 4:
-                temp_options = [duration for duration in duration_options if duration <= (orig_time+4)-time]
-                duration = temp_options[randint(0,len(temp_options)-1)]
-                if duration == .25:
-                    for x in range(4):
-                        self.build_beat(input_triad, time, singer, duration)
-                        time += .25
-                else:
-                    self.build_beat(input_triad, time, singer, duration)
-                    time += duration
-
-    def build_measure_bridge(self, singer, input_triad, time):
+    def build_measure(self, singer, input_triad, time, note_options):
         orig_time = deepcopy(time)
 
         if singer.name == 'Bass':
-            duration_options = [2]
+            duration_options = note_options[0]
 
         elif singer.name == 'Tenor':
-            duration_options = [2]
+            duration_options = note_options[1]
 
         elif singer.name == 'Alto':
-            duration_options = [1]
+            duration_options = note_options[2]
 
         elif singer.name == 'Soprano':
-            random = randint(0,100)
-            if 0 <= random <= 75:
-                duration_options = [.25,.5]
-            elif 75 < random:
-                duration_options = [.25,.5,1]
-
-
-        while time < orig_time + 4:
-            temp_options = [duration for duration in duration_options if duration <= (orig_time+4)-time]
-            duration = temp_options[randint(0,len(temp_options)-1)]
-            if duration == .25:
-                for x in range(4):
-                    self.build_beat(input_triad, time, singer, duration)
-                    time += .25
-            else:
-                self.build_beat(input_triad, time, singer, duration)
-                time += duration
-
-    def build_measure_chorus(self, singer, input_triad, time):
-        orig_time = deepcopy(time)
-
-        if singer.name == 'Bass':
-            duration_options = [1]
-
-        elif singer.name == 'Tenor':
-            duration_options = [1]
-
-        elif singer.name == 'Alto':
-            duration_options = [1]
-
-        elif singer.name == 'Soprano':
-            duration_options = [1]
+            duration_options = note_options[3]
 
 
         while time < orig_time + 4:
@@ -161,17 +137,17 @@ class Song:
     def build_beat(self, input_triad, time, singer, duration=1):
         pitch = self.return_next_pitch(singer, input_triad)
         self.notes_for_track[singer.track].append(pitch)
-        self.MyMIDI.addNote(singer.track, singer.track, pitch, time, duration, 100)
+        self.MyMIDI.addNote(singer.track, singer.track, pitch, time, duration, singer.volume)
 
     def build_x_sixteenths(self, num_sixteenths, input_triad, time, singer):
         for x in range(num_sixteenths):
             pitch = self.return_next_pitch(singer, input_triad)
-            self.MyMIDI.addNote(singer.track, singer.track, pitch, time, .25, 100)
+            self.MyMIDI.addNote(singer.track, singer.track, pitch, time, .25, singer.volume)
             self.notes_for_track[singer.track].append(pitch)
             time += .25
 
-    def set_instrument(self, track, channel, instrument_text):
-        self.MyMIDI.addProgramChange(track, channel, 0, instrument_dic[instrument_text])
+    def set_instrument(self, track, channel, input_instrument):
+        self.MyMIDI.addProgramChange(track, channel, 0, input_instrument)
 
     def write_to_disk(self, output_name):
         binfile = open(output_name + '.mid', 'wb')
