@@ -13,6 +13,7 @@ class Song:
         self.singers = singers
         self.key = key
         self.time = 0
+        self.sections = []
 
         self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
         self.triads = self.create_triad_sequence(num_measures, key)
@@ -63,11 +64,30 @@ class Song:
             return possible_notes[pick_any]
 
     def build_song(self):
-        self.build_verse(self.num_measures//6)
-        self.build_chorus(self.num_measures//6)
-        self.build_verse(self.num_measures//6)
-        self.build_bridge(self.num_measures//6)
-        self.build_verse(self.num_measures//6)
+        section_length = 15
+        # chorus:0,verse:1,bridge:2
+        self.build_verse(section_length)
+        self.sections.append(1)
+        for x in range((self.num_measures-section_length)//section_length):
+            if x != (self.num_measures-section_length)//section_length-1:
+                choices = [0,1,2]
+                choices.pop(self.sections[len(self.sections)-1])
+                section_type = choices[randint(0,1)]
+                self.sections.append(section_type)
+
+            else: # ensures that the second to last measure isn't a chorus
+                choices = [0,1,2]
+                if self.sections[len(self.sections)-1] != 0:
+                    choices.pop(self.sections[len(self.sections)-1])
+                choices.pop(0)
+
+            if section_type == 0:
+                self.build_chorus(section_length)
+            elif section_type == 1:
+                self.build_verse(section_length)
+            elif section_type == 2:
+                self.build_bridge(section_length)
+
         self.build_chorus(self.num_measures-(self.time//4))
 
     def build_chorus(self, length):

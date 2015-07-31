@@ -250,7 +250,8 @@ class MusicChooser:
 
         preset = [temp_name, self.tempo_input.get(), self.key_var.get(), self.measures_input.get(), self.tracks_var.get()]
         for x in range(len(self.track_and_settings)):
-            preset.extend([self.track_and_settings[x][3].get(), self.track_and_settings[x][6].get(), self.track_and_settings[x][9].get()])
+            for y in range(3):
+                preset.extend([self.track_and_settings[x][0][y][0].get(), self.track_and_settings[x][0][y][2].get(), self.track_and_settings[x][0][y][4].get()])
         Preset.add_preset(preset)
         self.preset_keys = Preset.load().keys()
         self.presets_var.set(list(self.preset_keys)[0])
