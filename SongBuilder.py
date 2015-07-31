@@ -7,20 +7,21 @@ class Song:
 
     def __init__(self, tempo, key, num_measures, instruments, singers, num_tracks):
         self.num_tracks = num_tracks
+        self.num_measures = num_measures
         self.MyMIDI = MIDIFile(self.num_tracks)
-        self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
-        self.triads = self.create_triad_sequence(num_measures, key)
         self.instruments = instruments
         self.singers = singers
-
         self.key = key
+        self.time = 0
 
+        self.MyMIDI.addTempo(track=0, tempo=tempo, time=0)
+        self.triads = self.create_triad_sequence(num_measures, key)
         self.notes_for_track = []
 
         for x in range(self.num_tracks//3):
             for singer_index in range(len(self.singers[x])):
-                self.singers[x][singer_index].track = 3*x + singer_index
-                self.singers[x][singer_index].channel = 3*x + singer_index
+                self.singers[x][singer_index].track = self.num_tracks//3*singer_index + x
+                self.singers[x][singer_index].channel = self.num_tracks//3*singer_index + x
 
         for singer in [row[0] for row in self.singers]:
             self.add_track(singer)
@@ -28,8 +29,6 @@ class Song:
             self.add_track(singer)
         for singer in [row[2] for row in self.singers]:
             self.add_track(singer)
-
-        self.time = 0
 
         self.build_song()
 
@@ -64,20 +63,24 @@ class Song:
             return possible_notes[pick_any]
 
     def build_song(self):
-        self.build_chorus(5)
-        self.build_verse(5)
-        self.build_bridge(5)
+        self.build_verse(self.num_measures//6)
+        self.build_chorus(self.num_measures//6)
+        self.build_verse(self.num_measures//6)
+        self.build_bridge(self.num_measures//6)
+        self.build_verse(self.num_measures//6)
+        self.build_chorus(self.num_measures-(self.time//4))
 
     def build_chorus(self, length):
+        duration_options = [[.25,.5],[.5,1],[1],[1,2]]
         for x in range(len([row[0] for row in self.singers])):
             self.set_instrument([row[0] for row in self.singers][x].track,[row[0] for row in self.singers][x].track, [row[0] for row in self.instruments][x])
         for x in range(length-1):
             for singer in [row[0] for row in self.singers]:
-                self.build_measure(singer, self.triads[0], self.time, [[1],[1],[1],[1]])
+                self.build_measure(singer, self.triads[0], self.time, duration_options)
             self.triads.pop(0)
             self.time += 4
         for singer in [row[0] for row in self.singers]:
-            self.build_measure(singer, triad(self.key, self.key.notes_in_key[0]), self.time, [[1],[1],[1],[1]])
+            self.build_measure(singer, triad(self.key, self.key.notes_in_key[0]), self.time, duration_options)
         self.triads.pop()
         self.time+=4
 

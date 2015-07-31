@@ -148,7 +148,7 @@ class MusicChooser:
         self.master.mainloop()
 
     def add_initial_elements(self):
-        self.randomize_button = Button(self.frame, text='Randomize Settings', command=self.randomize_settings)
+        self.randomize_button = Button(self.frame, text='Randomize Settings (Might Sound Terrrrrible)', command=self.randomize_settings)
         self.grid.add_with_column(1, self.randomize_button)
 
         presets_data = Preset.load()
@@ -213,9 +213,10 @@ class MusicChooser:
         self.tracks_var.set(str(randint(1,6)))
         self.add_track_settings()
         for track in self.track_and_settings:
-            track[3].set([instrument[0] for instrument in normal_instrument_list][randint(0,len(normal_instrument_list)-1)])
-            track[6].set([vocal[0] for vocal in singer_list][randint(0,len(singer_list)-1)])
-            track[9].set(randint(50,100))
+            for y in range(3):
+                track[0][y][0].set([instrument[0] for instrument in normal_instrument_list][randint(0,len(normal_instrument_list)-1)])
+                track[0][y][2].set([vocal[0] for vocal in singer_list][randint(0,len(singer_list)-1)])
+                track[0][y][4].set(randint(50,100))
 
     def load_preset(self):
         preset = Preset.load()[self.presets_var.get()]

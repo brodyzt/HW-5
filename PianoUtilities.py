@@ -293,7 +293,7 @@ def triad(input_key, start_note):
     return chord
 
 def get_biased_random_note(possible_notes, last_note):
-    ratio = .7
+    ratio = 1.25
     num_notes = len(possible_notes)
 
     ranges = []
