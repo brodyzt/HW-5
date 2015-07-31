@@ -1,5 +1,6 @@
 from tkinter import *
 from random import *
+from copy import *
 from PianoUtilities import *
 
 class Preset:
@@ -147,6 +148,9 @@ class MusicChooser:
         self.master.mainloop()
 
     def add_initial_elements(self):
+        self.randomize_button = Button(self.frame, text='Randomize Settings', command=self.randomize_settings)
+        self.grid.add_with_column(1, self.randomize_button)
+
         presets_data = Preset.load()
         self.presets_label = Label(self.frame, text='Presets:')
         self.presets_var = StringVar()
@@ -180,21 +184,32 @@ class MusicChooser:
         self.grid.add_pair_of_widgets(self.key_text,self.key_input)
 
         self.measures_text = Label(self.frame, text='# of Measures:')
-        self.measures_input = Scale(self.frame, from_=1, to=100, orient=HORIZONTAL)
-        self.measures_input.set(50)
+        self.measures_input = Scale(self.frame, from_=1, to=200, orient=HORIZONTAL, resolution=4)
+        self.measures_input.set(100)
         self.grid.add_pair_of_widgets(self.measures_text, self.measures_input)
 
         self.tracks_var = StringVar(self.master)
         self.tracks_var.set('1')
         self.tracks_var.trace('w', self.add_track_settings)
         self.tracks_text = Label(self.frame, text='# of Tracks:')
-        self.tracks_input = OptionMenu(self.frame, self.tracks_var, *[str(num+1) for num in range(7)])
+        self.tracks_input = OptionMenu(self.frame, self.tracks_var, *[str(num+1) for num in range(6)])
         self.grid.add_pair_of_widgets(self.tracks_text,self.tracks_input)
 
         self.complete_button = Button(self.frame, text='Build Song', command=self.close)
 
         self.rebuild_grid()
         self.add_track_settings()
+
+    def randomize_settings(self):
+        self.tempo_input.set(randint(1,300))
+        self.key_var.set([key.name for key in key_list][randint(0,len(key_list)-1)])
+        self.measures_input.set(randint(1,200))
+        self.tracks_var.set(str(randint(1,6)))
+        self.add_track_settings()
+        for track in self.track_and_settings:
+            track[3].set([instrument[0] for instrument in normal_instrument_list][randint(0,len(normal_instrument_list)-1)])
+            track[6].set([vocal[0] for vocal in singer_list][randint(0,len(singer_list)-1)])
+            track[9].set(randint(50,100))
 
     def load_preset(self):
         preset = Preset.load()[self.presets_var.get()]

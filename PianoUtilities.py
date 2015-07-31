@@ -1,5 +1,3 @@
-from Errors import *
-from copy import *
 from math import *
 from random import *
 
@@ -87,6 +85,35 @@ instrument_list = [('Acoustic Grand Piano',0),
                    ('bird',123),
                    ('phone',124),
                    ('applause',126)]
+
+normal_instrument_list = [('Acoustic Grand Piano',0),
+                   ('Bright Acoustic Piano',1),
+                   ('Electric Grand Piano',2),
+                   ('Harpsichord',6),
+                   ('Marimba',12),
+                   ('Hammond Organ',16),
+                   ('Percussive Organ',17),
+                   ('Rock Organ',18),
+                   ('Church Organ',19),
+                   ('Reed Organ',20),
+                   ('Acoustic Nylon Guitar',24),
+                   ('Acoustic Bass',32),
+                   ('Violin',40),
+                   ('Viola',41),
+                   ('Cello',42),
+                   ('Orchestral Harp',46),
+                   ('trumpet',56),
+                   ('tuba',58),
+                   ('horn',60),
+                   ('alto sax', 65),
+                   ('oboe',68),
+                   ('bassoon',70),
+                   ('clarinet',71),
+                   ('flute',73),
+                   ('recorder',74),('Square Wave Lead',80),
+                   ('Sawtooth Wave Lead',81),
+                   ('Calliope Lead',82),
+                   ('Chiff Lead',83)]
 
 instrument_dic = dict(instrument_list)
 
@@ -263,41 +290,37 @@ def triad(input_key, start_note):
 
     return chord
 
-def get_biased_random(num_notes):
-    ratio = 1
+def get_biased_random_note(possible_notes, last_note):
+    ratio = .7
+    num_notes = len(possible_notes)
+
+    ranges = []
     total = 0
-    for z in range(1, num_notes+1):
-        if num_notes % 2 == 0:
-            if z < num_notes//2:
-                total += (ratio)**(abs(num_notes//2-z))
-            else:
-                total += (ratio)**(abs(num_notes//2+1-z))
+    for note in possible_notes:
+        difference = note-last_note
+        if difference == 0:
+            total += 1
+            ranges.append(1)
         else:
-            total += (ratio)**(abs(num_notes//2+1-z))
+            total += 1/(abs(note-last_note)**ratio)
+            ranges.append(1/(abs(note-last_note)**ratio))
+
     x = 100/total
-    ranges = [0]
+    bounds = [0]
+
     total = 0
-    for z in range(1, num_notes+1):
-        if num_notes % 2 == 0:
-            if z < num_notes//2:
-                total += int(x*(ratio)**(abs(num_notes//2-z)))
-                ranges.append(total)
-            else:
-                total += int(x*(ratio)**(abs(num_notes//2+1-z)))
-                ranges.append(total)
-        else:
-            total += int(x*(ratio)**(abs(num_notes//2+1-z)))
-            ranges.append(total)
-    ranges[len(ranges)-1] = 100
-    return ranges
 
-def get_biased_random_note(possible_notes):
-    print(possible_notes)
-    ranges = get_biased_random(len(possible_notes))
-    random_num = randint(0,100)
+    for z in range(num_notes-1):
+        total += int(x*ranges[z])
+        bounds.append(total)
 
-    for x in range(len(ranges)-1):
-        if random_num <= ranges[x+1]:
-            return possible_notes[x]
+    bounds.append(100)
+    random = randint(0,100)
 
-print(get_biased_random(7))
+    for z in range(len(bounds)-1):
+        if random <= bounds[z+1]:
+            return possible_notes[z]
+
+
+
+

@@ -1,6 +1,7 @@
 from MidiFile3 import MIDIFile
 from PianoUtilities import *
 from random import *
+from copy import *
 
 class Song:
 
@@ -51,50 +52,32 @@ class Song:
                 possible_notes.append(note)
         if len(self.notes_for_track[input_singer.track]) > 0:
             previous = self.notes_for_track[input_singer.track][len(self.notes_for_track[input_singer.track])-1]
-            jumps = []
-            steps = []
-            for note in possible_notes:
-                difference = abs(note-previous)
-                if difference < 5:
-                    steps.append(note)
-                elif difference <= 12:
-                    jumps.append(note)
-            jump_or_step = randint(0,9)
-            if len(jumps) == 0:
-                return get_biased_random_note(steps)
-            if len(steps) == 0:
-                return get_biased_random_note(jumps)
-            if jump_or_step <= 1:
-                return get_biased_random_note(jumps)
-            else:
-                return get_biased_random_note(steps)
+            return get_biased_random_note(possible_notes, previous)
         else:
             pick_any = randint(0,len(possible_notes)-1)
             return possible_notes[pick_any]
 
     def build_song(self):
-        for triad in self.triads:
+        for triad in self.triads[0:len(self.triads)//2]:
             for singer in self.singers:
-                self.build_measure(singer, triad, self.time)
+                self.build_measure_chorus(singer, triad, self.time)
+            self.time += 4
+        for triad in self.triads[len(self.triads)//2:len(self.triads)]:
+            for singer in self.singers:
+                self.build_measure_bridge(singer, triad, self.time)
             self.time += 4
 
-    def build_measure(self, singer, input_triad, time):
+    def build_measure_verse(self, singer, input_triad, time):
             orig_time = deepcopy(time)
 
             if singer.name == 'Bass':
-                duration_options = [1,2]
+                duration_options = [1]
 
             elif singer.name == 'Tenor':
-                duration_options = [1,2]
+                duration_options = [.5,1]
 
             elif singer.name == 'Alto':
-                random = randint(0,100)
-                if 0 <= random <= 25:
-                    duration_options = [.25,.5,1]
-                elif 25 < random <= 75:
-                    duration_options = [.5,1]
-                elif 75 < random:
-                    duration_options = [.25,1]
+                duration_options = [.5,1]
 
             elif singer.name == 'Soprano':
                 random = randint(0,100)
@@ -110,14 +93,70 @@ class Song:
                 temp_options = [duration for duration in duration_options if duration <= (orig_time+4)-time]
                 duration = temp_options[randint(0,len(temp_options)-1)]
                 if duration == .25:
-                    self.build_beat(input_triad, time, singer, duration)
-                    time += .25
-                    self.build_beat(input_triad, time, singer, duration)
-                    time += .25
+                    for x in range(4):
+                        self.build_beat(input_triad, time, singer, duration)
+                        time += .25
                 else:
                     self.build_beat(input_triad, time, singer, duration)
                     time += duration
 
+    def build_measure_bridge(self, singer, input_triad, time):
+        orig_time = deepcopy(time)
+
+        if singer.name == 'Bass':
+            duration_options = [2]
+
+        elif singer.name == 'Tenor':
+            duration_options = [2]
+
+        elif singer.name == 'Alto':
+            duration_options = [1]
+
+        elif singer.name == 'Soprano':
+            random = randint(0,100)
+            if 0 <= random <= 75:
+                duration_options = [.25,.5]
+            elif 75 < random:
+                duration_options = [.25,.5,1]
+
+
+        while time < orig_time + 4:
+            temp_options = [duration for duration in duration_options if duration <= (orig_time+4)-time]
+            duration = temp_options[randint(0,len(temp_options)-1)]
+            if duration == .25:
+                for x in range(4):
+                    self.build_beat(input_triad, time, singer, duration)
+                    time += .25
+            else:
+                self.build_beat(input_triad, time, singer, duration)
+                time += duration
+
+    def build_measure_chorus(self, singer, input_triad, time):
+        orig_time = deepcopy(time)
+
+        if singer.name == 'Bass':
+            duration_options = [1]
+
+        elif singer.name == 'Tenor':
+            duration_options = [1]
+
+        elif singer.name == 'Alto':
+            duration_options = [1]
+
+        elif singer.name == 'Soprano':
+            duration_options = [1]
+
+
+        while time < orig_time + 4:
+            temp_options = [duration for duration in duration_options if duration <= (orig_time+4)-time]
+            duration = temp_options[randint(0,len(temp_options)-1)]
+            if duration == .25:
+                for x in range(4):
+                    self.build_beat(input_triad, time, singer, duration)
+                    time += .25
+            else:
+                self.build_beat(input_triad, time, singer, duration)
+                time += duration
 
     def build_beat(self, input_triad, time, singer, duration=1):
         pitch = self.return_next_pitch(singer, input_triad)
