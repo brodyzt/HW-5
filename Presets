@@ -1,5 +1,4 @@
 Preset_Name,Tempo,Key,Num_Measures,Num_Tracks,Instrument1,Singer1,Instrument2,Singer2...
-The Best Song Ever,120,E Minor,50,5,piano,Soprano,piano,Soprano,violin,Alto,violin,Bass,cello,Bass
-New Settings,168,F Minor,50,4,piano,Soprano,piano,Soprano,piano,Soprano,piano,Soprano
-Test,120,C Major,50,4,piano,Soprano,piano,Soprano,piano,Soprano,piano,Soprano
-Craziness,120,F Minor,50,7,harpsichord,Soprano,piano,Soprano,violin,Soprano,violin,Alto,violin,Alto,cello,Tenor,bass,Bass
+Synthesia,150,E Minor,50,5,Square Wave Lead,Soprano,100,Sawtooth Wave Lead,Alto,100,Square Wave Lead,Alto,79,Sawtooth Wave Lead,Tenor,56,Calliope Lead,Soprano,100
+Awesomeness,119,B Major,50,5,Acoustic Grand Piano,Soprano,100,Bright Acoustic Piano,Alto,100,Acoustic Grand Piano,Tenor,100,Bright Acoustic Piano,Tenor,100,Acoustic Grand Piano,Bass,100
+Symphony,120,C Major,50,6,Viola,Soprano,100,Bright Acoustic Piano,Soprano,100,Violin,Alto,100,Acoustic Grand Piano,Tenor,100,Acoustic Grand Piano,Bass,100,Cello,Bass,100

@@ -1,5 +1,7 @@
 from Errors import *
 from copy import *
+from math import *
+from random import *
 
 class Singer:
     def __init__(self, low_note, high_note, track, channel, name):
@@ -36,16 +38,55 @@ class Bass(Singer):
     def __init__(self, low_note=40, high_note=64, track=1, channel=1, name='Bass'):
         super(Bass, self).__init__(low_note,high_note,track,channel,name)
 
-instrument_list = [('piano',0), ('harpsichord',6), ('glock',9), ('vibes',11),
-                            ('marimba',12), ('organ',19), ('guitar',24), ('bass',32),
-                            ('violin',40), ('cello',42), ('harp',46), ('timps',47),
-                            ('voice',54), ('trumpet',56), ('tuba',58), ('horn',60),
-                            ('alto sax', 65), ('oboe',68), ('bassoon',70), ('clarinet',71),
-                            ('flute',73), ('recorder',74), ('bottle',75), ('whistle',78),
-                            ('synth 1',81), ('synth 2',82), ('synth 3',83), ('synth 4',84),
-                            ('fifths',96), ('halo',94), ('goblins',101), ('koto',107),
-                            ('bagpipe',109), ('taiko',116), ('toms',117), ('breath',121),
-                            ('seashore',122), ('bird',123), ('phone',124), ('applause',126)]
+instrument_list = [('Acoustic Grand Piano',0),
+                   ('Bright Acoustic Piano',1),
+                   ('Electric Grand Piano',2),
+                   ('Harpsichord',6),
+                   ('Glockenspiel',9),
+                   ('Vibraphone',11),
+                   ('Marimba',12),
+                   ('Hammond Organ',16),
+                   ('Percussive Organ',17),
+                   ('Rock Organ',18),
+                   ('Church Organ',19),
+                   ('Reed Organ',20),
+                   ('Acoustic Nylon Guitar',24),
+                   ('Acoustic Bass',32),
+                   ('Violin',40),
+                   ('Viola',41),
+                   ('Cello',42),
+                   ('Contrabass',44),
+                   ('Orchestral Harp',46),
+                   ('Timpani',47),
+                   ('voice',54),
+                   ('trumpet',56),
+                   ('tuba',58),
+                   ('horn',60),
+                   ('alto sax', 65),
+                   ('oboe',68),
+                   ('bassoon',70),
+                   ('clarinet',71),
+                   ('flute',73),
+                   ('recorder',74),
+                   ('bottle',75),
+                   ('whistle',78),
+                   ('Square Wave Lead',80),
+                   ('Sawtooth Wave Lead',81),
+                   ('Calliope Lead',82),
+                   ('Chiff Lead',83),
+                   ('fifths',96),
+                   ('halo',94),
+                   ('goblins',101),
+                   ('koto',107),
+                   ('bagpipe',109),
+                   ('Steel Drum',114),
+                   ('taiko',116),
+                   ('toms',117),
+                   ('breath',121),
+                   ('seashore',122),
+                   ('bird',123),
+                   ('phone',124),
+                   ('applause',126)]
 
 instrument_dic = dict(instrument_list)
 
@@ -215,9 +256,48 @@ def n_notes_away(input_key, start_note, num_away):
 
 def triad(input_key, start_note):
     chord = []
+    index = input_key.notes_in_key.index(start_note)
     for x in range(3):
-        index = input_key.notes_in_key.index(start_note)
         chord.append(input_key.notes_in_key[index] % 12)
         index += 2
 
     return chord
+
+def get_biased_random(num_notes):
+    ratio = 1
+    total = 0
+    for z in range(1, num_notes+1):
+        if num_notes % 2 == 0:
+            if z < num_notes//2:
+                total += (ratio)**(abs(num_notes//2-z))
+            else:
+                total += (ratio)**(abs(num_notes//2+1-z))
+        else:
+            total += (ratio)**(abs(num_notes//2+1-z))
+    x = 100/total
+    ranges = [0]
+    total = 0
+    for z in range(1, num_notes+1):
+        if num_notes % 2 == 0:
+            if z < num_notes//2:
+                total += int(x*(ratio)**(abs(num_notes//2-z)))
+                ranges.append(total)
+            else:
+                total += int(x*(ratio)**(abs(num_notes//2+1-z)))
+                ranges.append(total)
+        else:
+            total += int(x*(ratio)**(abs(num_notes//2+1-z)))
+            ranges.append(total)
+    ranges[len(ranges)-1] = 100
+    return ranges
+
+def get_biased_random_note(possible_notes):
+    print(possible_notes)
+    ranges = get_biased_random(len(possible_notes))
+    random_num = randint(0,100)
+
+    for x in range(len(ranges)-1):
+        if random_num <= ranges[x+1]:
+            return possible_notes[x]
+
+print(get_biased_random(7))
