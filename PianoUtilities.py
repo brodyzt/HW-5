@@ -59,13 +59,13 @@ instrument_list = [('Acoustic Grand Piano',0),
                    ('Orchestral Harp',46),
                    ('Timpani',47),
                    ('voice',54),
-                   ('trumpet',56),
-                   ('tuba',58),
-                   ('horn',60),
-                   ('alto sax', 65),
+                   ('Trumpet',56),
+                   ('Tuba',58),
+                   ('Horn',60),
+                   ('Alto sax', 65),
                    ('oboe',68),
                    ('bassoon',70),
-                   ('clarinet',71),
+                   ('Clarinet',71),
                    ('flute',73),
                    ('recorder',74),
                    ('bottle',75),
@@ -74,8 +74,13 @@ instrument_list = [('Acoustic Grand Piano',0),
                    ('Sawtooth Wave Lead',81),
                    ('Calliope Lead',82),
                    ('Chiff Lead',83),
-                   ('fifths',96),
-                   ('halo',94),
+                   ('New Age Pad',88),
+                   ('Warm Pad',89),
+                   ('Polysynth Pad',90),
+                   ('Choir Pad',91),
+                   ('Bowed Pad',92),
+                   ('Metallic Pad',93),
+                   ('Halo Pad',94),
                    ('goblins',101),
                    ('koto',107),
                    ('bagpipe',109),
@@ -88,34 +93,18 @@ instrument_list = [('Acoustic Grand Piano',0),
                    ('phone',124),
                    ('applause',126)]
 
-normal_instrument_list = [('Acoustic Grand Piano',0),
-                   ('Bright Acoustic Piano',1),
-                   ('Electric Grand Piano',2),
-                   ('Harpsichord',6),
-                   ('Marimba',12),
-                   ('Hammond Organ',16),
-                   ('Percussive Organ',17),
-                   ('Rock Organ',18),
-                   ('Church Organ',19),
-                   ('Reed Organ',20),
-                   ('Acoustic Nylon Guitar',24),
-                   ('Acoustic Bass',32),
-                   ('Violin',40),
-                   ('Viola',41),
-                   ('Cello',42),
-                   ('Orchestral Harp',46),
-                   ('trumpet',56),
-                   ('tuba',58),
-                   ('horn',60),
-                   ('alto sax', 65),
-                   ('oboe',68),
-                   ('bassoon',70),
-                   ('clarinet',71),
-                   ('flute',73),
-                   ('recorder',74),('Square Wave Lead',80),
-                   ('Sawtooth Wave Lead',81),
-                   ('Calliope Lead',82),
-                   ('Chiff Lead',83)]
+def random_instrument_set():
+   set_1 = ['Acoustic Grand Piano','Bright Acoustic Piano','Electric Grand Piano']
+   set_2 = ['Square Wave Lead','Sawtooth Wave Lead','Calliope Lead',
+            'Chiff Lead','New Age Pad','Warm Pad',
+            'Polysynth Pad','Choir Pad','Bowed Pad','Metallic Pad','Halo Pad']
+   set_3 = ['Trumpet','Tuba','Horn','Alto sax','Clarinet']
+   set_4 = ['Hammond Organ','Hammond Organ','Rock Organ','Church Organ','Reed Organ']
+   set_5 = ['Violin','Viola','Cello','Contrabass']
+
+   options = [set_1,set_2,set_3,set_4,set_5]
+
+   return options[randint(0,len(options)-1)]
 
 instrument_dic = dict(instrument_list)
 
@@ -205,7 +194,7 @@ eighth = .5
 sixteenth = .25
 
 # Keys
-
+b_sharp = 0
 c = 0
 c_sharp = 1
 d_flat = 1
@@ -213,6 +202,8 @@ d = 2
 d_sharp = 3
 e_flat = 3
 e = 4
+e_sharp = 5
+f_flat = 4
 f = 5
 f_sharp = 6
 g_flat = 6
@@ -223,6 +214,7 @@ a = 9
 a_sharp = 10
 b_flat = 10
 b = 11
+c_flat = 11
 
 class Key:
 
@@ -243,36 +235,61 @@ class Key:
 
 C_Major = Key('C Major', [c,d,e,f,g,a,b])
 C_Minor = Key('C Minor', [c,d,e_flat,f,g,a_flat,b_flat])
+C_Sharp_Major = Key('C# Major', [c_sharp,d_sharp,e_sharp,f_sharp,g_sharp,a_sharp,b_sharp])
+C_Sharp_Minor = Key('C# Minor', [c_sharp,d_sharp,e,f_sharp,g_sharp,a,b])
 D_Major = Key('D Major', [d,e,f_sharp,g,a,c_sharp])
 D_Minor = Key('D Minor', [d,e,f,g,a,b_flat,c])
+E_Flat_Major = Key('Eb Major', [e_flat,f,g,a_flat,b_flat,c,d])
+E_Flat_Minor = Key('Eb Minor', [e_flat,f,g_flat,a_flat,b_flat,c_flat,d_flat])
 E_Major = Key('E Major', [e,f_sharp,g_sharp,a,b,c_sharp,d_sharp])
 E_Minor = Key('E Minor', [e,f_sharp,g,a,b,c,d])
 F_Major = Key('F Major', [f,g,a,b_flat,c,d,e])
 F_Minor = Key('F Minor', [f,g,a_flat,b_flat,c,d_flat,e_flat])
+F_Sharp_Major = Key('F# Sharp Major', [f_sharp,g_sharp,a_sharp,b,c_sharp,d_sharp,e_sharp])
+F_Sharp_Minor = Key('F# Sharp Minor', [f_sharp,g_sharp,a,b,c_sharp,d,e])
 G_Major = Key('G Major', [g,a,b,c,d,e,f_sharp])
 G_Minor = Key('G Minor', [g,a,b_flat,c,d,e_flat,f])
+A_Flat_Major = Key('Ab Major', [a_flat,b_flat,c,d_flat,e_flat,f,g])
+A_Flat_Minor = Key('Ab Minor', [a_flat,b_flat,c_flat,d_flat,e_flat,f_flat,g_flat])
 A_Major = Key('A Major', [a,b,c_sharp,d,e,f_sharp,g_sharp])
 A_Minor = Key('A Minor', [a,b,c,d,e,f,g])
+B_Flat_Major = Key('Bb Major', [b_flat,c,d,e_flat,f,g,a])
+B_Flat_Minor = Key('Bb Minor', [b_flat,c,d_flat,e_flat,f,g_flat,a_flat])
 B_Major = Key('B Major', [b,c_sharp,d_sharp,e,f_sharp,g_sharp,a_sharp])
 B_Minor = Key('B Minor', [b,c_sharp,d,e,f_sharp,g,a])
 
 Major_Pentatonic = Key('Major Pentatonic', [g_flat,a_flat,b_flat,d_flat,e_flat])
+C_Pentatonic = Key('C Pentatonic', [c,d,e,g,a])
+C_Sharp_Pentatonic = Key('C# Pentatonic', [c_sharp,d_sharp,f,g_sharp,a_sharp])
+
 
 key_list = [C_Major,
             C_Minor,
+            C_Sharp_Major,
+            C_Sharp_Minor,
             D_Major,
             D_Minor,
+            E_Flat_Major,
+            E_Flat_Minor,
             E_Major,
             E_Minor,
             F_Major,
             F_Minor,
+            F_Sharp_Major,
+            F_Sharp_Minor,
             G_Major,
             G_Minor,
+            A_Flat_Major,
+            A_Flat_Minor,
             A_Major,
             A_Minor,
+            B_Flat_Major,
+            B_Flat_Minor,
             B_Major,
             B_Minor,
-            Major_Pentatonic]
+            Major_Pentatonic,
+            C_Pentatonic,
+            C_Sharp_Pentatonic]
 
 key_dic = dict((key.name,key) for key in key_list)
 

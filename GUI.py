@@ -207,14 +207,15 @@ class MusicChooser:
         self.add_track_settings()
 
     def randomize_settings(self):
-        self.tempo_input.set(randint(1,300))
+        self.tempo_input.set(randint(50,200))
         self.key_var.set([key.name for key in key_list][randint(0,len(key_list)-1)])
         self.measures_input.set(randint(1,200))
         self.tracks_var.set(str(randint(1,6)))
         self.add_track_settings()
-        for track in self.track_and_settings:
-            for y in range(3):
-                track[0][y][0].set([instrument[0] for instrument in normal_instrument_list][randint(0,len(normal_instrument_list)-1)])
+        for y in range(3):
+            instrument_set = random_instrument_set()
+            for track in self.track_and_settings:
+                track[0][y][0].set(instrument_set[randint(0,len(instrument_set)-1)])
                 track[0][y][2].set([vocal[0] for vocal in singer_list][randint(0,len(singer_list)-1)])
                 track[0][y][4].set(randint(50,100))
 
@@ -228,8 +229,8 @@ class MusicChooser:
         for x in range(len(self.track_and_settings)):
             for y in range(3):
                 self.track_and_settings[x][0][y][0].set(preset[5+9*x+3*y])
-                self.track_and_settings[x][0][y][2].set(preset[5+3*x+3*y+1])
-                self.track_and_settings[x][0][y][4].set(preset[5+3*x+3*y+2])
+                self.track_and_settings[x][0][y][2].set(preset[5+9*x+3*y+1])
+                self.track_and_settings[x][0][y][4].set(preset[5+9*x+3*y+2])
 
     def delete_preset(self):
         Preset.remove_preset(self.presets_var.get())
