@@ -24,7 +24,6 @@ class Singer:
                 possible_notes.append(pitch)
         return possible_notes
 
-
 class Soprano(Singer):
     def __init__(self, low_note=60, high_note=81, track=0, channel=0, name='Soprano'):
         super(Soprano, self).__init__(low_note,high_note,track,channel,name)
@@ -93,6 +92,7 @@ instrument_list = [('Acoustic Grand Piano',0),
                    ('phone',124),
                    ('applause',126)]
 
+# creates groups of instruments for the Random Options button in the GUI, so the song doesn't sound absolutely terrible
 def random_instrument_set():
    set_1 = ['Acoustic Grand Piano','Bright Acoustic Piano','Electric Grand Piano']
    set_2 = ['Square Wave Lead','Sawtooth Wave Lead','Calliope Lead',
@@ -291,14 +291,8 @@ key_list = [C_Major,
             C_Pentatonic,
             C_Sharp_Pentatonic]
 
+# Creates a dictionary of keys for easy use in the GUI
 key_dic = dict((key.name,key) for key in key_list)
-
-
-def n_notes_away(input_key, start_note, num_away):
-    index = input_key.notes_in_key.index(start_note)
-    index += num_away
-    return input_key.notes_in_key[index]
-
 
 def triad(input_key, start_note):
     chord = []
@@ -309,8 +303,10 @@ def triad(input_key, start_note):
 
     return chord
 
+# Elastic funciton for getting random notes, but pulling back to the center of vocal range if too far away
+# Ended up not using this function because it didn't sound as good as the jump/step selection method
 def get_biased_random_note(possible_notes, last_note):
-    ratio = 1.25
+    elasticity = 1.25 # constant that determines the pull strength back to the center of vocal range. Higher=More elastic
     num_notes = len(possible_notes)
 
     ranges = []
@@ -321,8 +317,8 @@ def get_biased_random_note(possible_notes, last_note):
             total += 1
             ranges.append(1)
         else:
-            total += 1/(abs(note-last_note)**ratio)
-            ranges.append(1/(abs(note-last_note)**ratio))
+            total += 1/(abs(note-last_note)**elasticity)
+            ranges.append(1/(abs(note-last_note)**elasticity))
 
     x = 100/total
     bounds = [0]

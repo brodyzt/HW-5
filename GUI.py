@@ -155,10 +155,6 @@ class MusicChooser:
         self.presets_label = Label(self.frame, text='Presets:')
         self.presets_var = StringVar()
         self.preset_keys = presets_data.keys()
-        if len(self.preset_keys) > 0:
-            self.presets_var.set(list(self.preset_keys)[0])
-        else:
-            self.preset_keys = ['']
         self.presets_picker = OptionMenu(self.frame, self.presets_var, *self.preset_keys)
         self.add_preset_button = Button(self.frame, text='Add Preset', command=self.ask_preset_name)
         self.delete_preset_button = Button(self.frame, text='Delete Preset', command=self.delete_preset)
@@ -278,7 +274,6 @@ class MusicChooser:
                 preset.extend([self.track_and_settings[x][0][y][0].get(), self.track_and_settings[x][0][y][2].get(), self.track_and_settings[x][0][y][4].get()])
         Preset.add_preset(preset)
         self.preset_keys = Preset.load().keys()
-        self.presets_var.set(list(self.preset_keys)[0])
         self.presets_picker.__init__(self.frame, self.presets_var, *self.preset_keys)
         self.grid.insert_at_row_column(0,2,self.presets_picker)
 
