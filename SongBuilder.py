@@ -176,9 +176,10 @@ class Song:
 
         while time < orig_time + 4:
             if time > orig_time + 3: # if there is less than one beat left in the measure
-                temp_options = [duration for duration in duration_options if time+duration <= (orig_time+4)-time and duration!=.25] # only add a note that will fit in the measure but also don't add a 1/16 note because they come in sets of 4
+                temp_options = [duration for duration in duration_options if time+duration <= (orig_time+4) and duration!=.25] # only add a note that will fit in the measure but also don't add a 1/16 note because they come in sets of 4
             else:
-                temp_options = [duration for duration in duration_options if time+duration <= (orig_time+4)-time] # only add a note that will fit in the measure
+                temp_options = [duration for duration in duration_options if time+duration <= (orig_time+4)] # only add a note that will fit in the measure
+
             duration = temp_options[randint(0,len(temp_options)-1)] # pick a random duration
             if duration == .25:
                 for x in range(4): # if a 1/16 notes, add 4 of them

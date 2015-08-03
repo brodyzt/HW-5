@@ -5,6 +5,7 @@ from PianoUtilities import *
 
 class Preset:
 
+    # retrieves the saved presets from the presets file. Data is separated by ','
     @staticmethod
     def load():
         file = open('Presets', 'r')
@@ -14,6 +15,7 @@ class Preset:
         file.close()
         return dict([(preset[0],preset) for preset in contents])
 
+    # adds the input preset to the presets file
     @staticmethod
     def add_preset(preset):
         file = open('Presets', 'r')
@@ -31,6 +33,7 @@ class Preset:
 
         file.close()
 
+    # removes the input preset from the presets file
     @staticmethod
     def remove_preset(preset_name):
         new_file_contents = []
@@ -59,6 +62,7 @@ class custom_list():
     def __len__(self):
         return len(self.list)
 
+    # inserts the input widget at the given row and column
     def insert_at_row_column(self, row, column, object):
         if row <= len(self.list) - 1:
             if column <= len(self.list[row]):
@@ -77,6 +81,7 @@ class custom_list():
                     self.list[row].append(None)
                 self.list[row].insert(column, object)
 
+    # inserts the object at the given row and column but pushes all rows under the input_object down one row to make space
     def insert_own_row(self, row, column, object):
         if row <= len(self.list) - 1:
             self.list.insert(row, [])
@@ -97,14 +102,17 @@ class custom_list():
                     self.list[row].append(None)
                 self.list[row].insert(column, object)
 
+    # creates a new row at the bottom of the window and inputs the widget at the given column
     def add_with_column(self, column, object):
         self.insert_at_row_column(len(self), column, object)
 
+    # adds two widgets in their own row at the bottom of the window
     def add_pair_of_widgets(self, widget1, widget2, column1=0, column2=1):
         length = len(self)
         self.insert_at_row_column(length, column1, widget1)
         self.insert_at_row_column(length, column2, widget2)
 
+    # adds the list of widgets to the bottom of the window in their own row
     def add_list_of_widgets(self, input_list, columns=None):
         if not columns:
             columns = [num for num in range(len(input_list))]
@@ -112,6 +120,7 @@ class custom_list():
         for x in range(len(input_list)):
             self.insert_at_row_column(length, columns[x], input_list[x])
 
+    # removes the input widget from the grid
     def remove_item(self, item):
         for row in range(len(self.list)):
             for column in range(len(self.list[row])):
@@ -119,15 +128,18 @@ class custom_list():
                     self.list[row].pop(column)
                     return None
 
+    # returns the coordinates of the input widget
     def widget_coordinates(self, widget):
         for row in range(len(self.list)):
             for column in range(len(self.list[row])):
                 if self.list[row][column] == widget:
                     return (row, column)
 
+    # return the row coordinate of the input widget
     def widget_row(self, widget):
         return self.widget_coordinates(widget)[0]
 
+    # return the column of the input widget
     def widget_column(self, widget):
         return self.widget_coordinates(widget)[1]
 
@@ -144,9 +156,11 @@ class MusicChooser:
 
         self.add_initial_elements()
 
+    # runs the Tkinter root object
     def start(self):
         self.master.mainloop()
 
+    # builds the initial GUI and adds all the widgets
     def add_initial_elements(self):
         self.randomize_button = Button(self.frame, text='Randomize Settings (Might Sound Terrrrrible)', command=self.randomize_settings)
         self.grid.add_with_column(1, self.randomize_button)
@@ -154,6 +168,7 @@ class MusicChooser:
         presets_data = Preset.load()
         self.presets_label = Label(self.frame, text='Presets:')
         self.presets_var = StringVar()
+        self.presets_var.set('Select A Preset')
         self.preset_keys = presets_data.keys()
         self.presets_picker = OptionMenu(self.frame, self.presets_var, *self.preset_keys)
         self.add_preset_button = Button(self.frame, text='Add Preset', command=self.ask_preset_name)
@@ -202,6 +217,7 @@ class MusicChooser:
         self.rebuild_grid()
         self.add_track_settings()
 
+    # randomizes all of the settings in the GUI
     def randomize_settings(self):
         self.tempo_input.set(randint(50,200))
         self.key_var.set([key.name for key in key_list][randint(0,len(key_list)-1)])
@@ -215,6 +231,7 @@ class MusicChooser:
                 track[0][y][2].set([vocal[0] for vocal in singer_list][randint(0,len(singer_list)-1)])
                 track[0][y][4].set(randint(50,100))
 
+    # get the currently selected preset name and then load it from the presets file
     def load_preset(self):
         preset = Preset.load()[self.presets_var.get()]
         self.tempo_input.set(preset[1])
@@ -228,6 +245,7 @@ class MusicChooser:
                 self.track_and_settings[x][0][y][2].set(preset[5+9*x+3*y+1])
                 self.track_and_settings[x][0][y][4].set(preset[5+9*x+3*y+2])
 
+    # get the currently selected preset and delete it from the presets file
     def delete_preset(self):
         Preset.remove_preset(self.presets_var.get())
         self.preset_keys = Preset.load().keys()
@@ -241,6 +259,7 @@ class MusicChooser:
 
         self.rebuild_grid()
 
+    # get the currently selected preset name and replace its data with the current settings
     def update_preset(self):
         temp_name = self.presets_var.get()
         self.delete_preset()
@@ -257,6 +276,7 @@ class MusicChooser:
 
         self.rebuild_grid()
 
+    # opens a new window asking the user to name the new preset
     def ask_preset_name(self):
         self.preset_name_window = Toplevel()
         self.preset_name_text = Label(self.preset_name_window, text='Preset Name:')
@@ -267,6 +287,7 @@ class MusicChooser:
         self.save_button = Button(self.preset_name_window, text='Save Preset', command=self.save_preset)
         self.save_button.grid(row=1,columnspan=2)
 
+    # saves the new preset with name and data to the presets file
     def save_preset(self):
         preset = [self.preset_name_input.get(), self.tempo_input.get(), self.key_var.get(), self.measures_input.get(), self.tracks_var.get()]
         for x in range(len(self.track_and_settings)):
@@ -284,6 +305,7 @@ class MusicChooser:
         self.save_button.destroy()
         self.preset_name_window.destroy()
 
+    # rebuild the window based on the grid of widgets
     def rebuild_grid(self):
         for row in range(len(self.grid.list)):
             for column in range(len(self.grid.list[row])):
@@ -294,10 +316,12 @@ class MusicChooser:
                         self.grid.list[row][column].grid(row=row, column=column)
         self.complete_button.grid(row=len(self.grid),columnspan=2)
 
+    # adds/removes the settings for each singer/track
     def add_track_settings(self, *args):
         previous_length = len(self.track_and_settings)
         new_length = int(self.tracks_var.get())
-        if new_length < previous_length and previous_length != 0:
+        if new_length < previous_length and previous_length != 0: # if the new # of tracks is less than before and previous length wasn't 0
+            # remove track settings until the number of tracks is the number that the user selected
             for x in range(previous_length-1,new_length-1, -1):
                 for y in range(1,len(self.track_and_settings[x])):
                     self.grid.remove_item(self.track_and_settings[x][y])
@@ -310,7 +334,10 @@ class MusicChooser:
                             widget.destroy()
 
                 self.track_and_settings.pop()
-        elif new_length > previous_length:
+
+        elif new_length > previous_length: # if the user enters a number of tracks larger than already on screen
+
+            # add tracks until the new number of tracks equals the number the user selected
             for i in range(new_length-previous_length):
                 track_name_label = Label(self.frame, text = 'Track {}:'.format(str(i+previous_length+1)))
                 self.grid.add_with_column(0, track_name_label)
@@ -350,6 +377,7 @@ class MusicChooser:
 
         self.rebuild_grid()
 
+    # gets all of the settings from the GUI and stores them in variables for later access by the SongBuilder
     def close(self):
         self.file_name = self.file_name_input.get()
         self.tempo = int(self.tempo_input.get())
